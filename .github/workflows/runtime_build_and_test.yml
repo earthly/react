@@ -13,10 +13,10 @@ env:
   AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
   UCACHER_DB_URI: "${{ secrets.UCACHER_DB_URI }}"
   UCACHER_STORAGE: s3://us-west-2/earthly-ucacher-directory--usw2-az1--x-s3
-  UCACHER_INSTRUMENTER: strace
+  UCACHER_INSTRUMENTER: ptrace
   UCACHER_SHOW_IO: true
   FORCE_COLOR: 1
-  LOG_LEVEL: info
+  LOG_LEVEL: debug
 
 jobs:
 #  satellite_assignment:
