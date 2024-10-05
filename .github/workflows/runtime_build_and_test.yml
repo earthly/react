@@ -16,7 +16,7 @@ env:
   UCACHER_INSTRUMENTER: strace
   UCACHER_SHOW_IO: true
   FORCE_COLOR: 1
-  LOG_LEVEL: info
+  LOG_LEVEL: debug
 
 jobs:
 #  satellite_assignment:
@@ -204,7 +204,7 @@ jobs:
       - run: cat /tmp/ucacher/ucacher.log
       - run: sha256sum /home/runner/work/react/react/build/oss-stable-semver/eslint-plugin-react-hooks/cjs/eslint-plugin-react-hooks.production.js
       - name: Lint build
-        run: yarn lint-build
+        run: NODE_DEBUG=cluster,net,http,fs,tls,module,timers yarn lint-build
       - name: Display structure of build
         run: ls -R build
       - name: Archive build
