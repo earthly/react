@@ -14,7 +14,6 @@
  * environment.
  */
 
-
 import type {ReactNodeList} from 'shared/ReactTypes';
 
 import ReactFizzServer from 'react-server';
