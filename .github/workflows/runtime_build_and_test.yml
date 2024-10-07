@@ -211,7 +211,7 @@ jobs:
       - name: Yarn cache
         run: |
           cacheDir=$(yarn cache dir);
-          tree -f cacheDir;
+          tree -f $cacheDir || echo "not found $cacheDir";
           # yarn cache clean;
       - name: Lint build
         run: yarn lint-build
