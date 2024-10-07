@@ -214,7 +214,7 @@ jobs:
           tree -f $cacheDir || echo "not found $cacheDir";
           # yarn cache clean;
       - name: Lint build
-        run: yarn lint-build
+        run: sleep 300; yarn lint-build
       - name: Retry build
         run: |
           rm -rf build;
