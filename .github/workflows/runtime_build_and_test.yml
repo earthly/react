@@ -171,11 +171,11 @@ jobs:
         release_channel: [stable]
     steps:
       - uses: actions/checkout@v4
-      - name: Install ucacher
-        run: |
-          env;
-          cp .github/ucacher /usr/local/bin/ucacher;
-          chmod +x /usr/local/bin/ucacher;
+#      - name: Install ucacher
+#        run: |
+#          env;
+#          cp .github/ucacher /usr/local/bin/ucacher;
+#          chmod +x /usr/local/bin/ucacher;
       - uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
