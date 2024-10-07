@@ -201,8 +201,6 @@ jobs:
           RELEASE_CHANNEL: ${{ matrix.release_channel }}
           NODE_INDEX: ${{ matrix.worker_id }}
       - run: tree -f build
-      - run: cat /tmp/ucacher/ucacher.log
-      - run: sha256sum /home/runner/work/react/react/build/oss-stable-semver/eslint-plugin-react-hooks/cjs/eslint-plugin-react-hooks.production.js
       - name: Node modules cache
         run: |
           cacheDir=$(yarn cache dir);
