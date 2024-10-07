@@ -200,7 +200,7 @@ jobs:
           CI: github
           RELEASE_CHANNEL: ${{ matrix.release_channel }}
           NODE_INDEX: ${{ matrix.worker_id }}
-      - run: tree -f build
+      - run: tree -fs build
       - run: cat /tmp/ucacher/ucacher.log
       - run: sha256sum /home/runner/work/react/react/build/oss-stable-semver/eslint-plugin-react-hooks/cjs/eslint-plugin-react-hooks.production.js
       - name: Node modules cache
@@ -214,7 +214,7 @@ jobs:
           tree -f $cacheDir || echo "not found $cacheDir";
           # yarn cache clean;
       - name: Lint build
-        run: sleep 300; yarn lint-build
+        run:  yarn lint-build
       - name: Retry build
         run: |
           rm -rf build;
