@@ -11,8 +11,8 @@ env:
   SEGMENT_DOWNLOAD_TIMEOUT_MINS: 1
   AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
   AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
-  UCACHER_DB_URI: "${{ secrets.UCACHER_DB_URI }}"
-  UCACHER_STORAGE: s3://us-west-2/earthly-ucacher-directory--usw2-az1--x-s3
+ # UCACHER_DB_URI: "${{ secrets.UCACHER_DB_URI }}"
+ # UCACHER_STORAGE: s3://us-west-2/earthly-ucacher-directory--usw2-az1--x-s3
   UCACHER_INSTRUMENTER: strace
   UCACHER_SHOW_IO: true
   FORCE_COLOR: 1
@@ -195,12 +195,14 @@ jobs:
 #          path: "**/node_modules"
 #          key: ${{ runner.arch }}-${{ runner.os }}-modules-${{ hashFiles('yarn.lock') }}
       - run: yarn install --frozen-lockfile
-      - run: yarn build --index=${{ matrix.worker_id }} --total=20 --r=${{ matrix.release_channel }} --ci
+      - run: ucacher yarn build --index=${{ matrix.worker_id }} --total=20 --r=${{ matrix.release_channel }} --ci
         env:
           CI: github
           RELEASE_CHANNEL: ${{ matrix.release_channel }}
           NODE_INDEX: ${{ matrix.worker_id }}
       - run: tree -f build
+      - run: cat /tmp/ucacher/ucacher.log
+      - run: sha256sum /home/runner/work/react/react/build/oss-stable-semver/eslint-plugin-react-hooks/cjs/eslint-plugin-react-hooks.production.js
       - name: Node modules cache
         run: |
           cacheDir=$(yarn cache dir);
