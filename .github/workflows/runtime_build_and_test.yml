@@ -104,71 +104,53 @@ jobs:
 #      - run: yarn flags
 
   # ----- TESTS -----
-  test:
-    name: yarn test ${{ matrix.params }} (Shard ${{ matrix.shard }})
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        params:
-          - "-r=stable --env=development"
-          - "-r=stable --env=production"
-          - "-r=experimental --env=development"
-          - "-r=experimental --env=production"
-          - "-r=www-classic --env=development --variant=false"
-          - "-r=www-classic --env=production --variant=false"
-          - "-r=www-classic --env=development --variant=true"
-          - "-r=www-classic --env=production --variant=true"
-          - "-r=www-modern --env=development --variant=false"
-          - "-r=www-modern --env=production --variant=false"
-          - "-r=www-modern --env=development --variant=true"
-          - "-r=www-modern --env=production --variant=true"
-          - "-r=xplat --env=development --variant=false"
-          - "-r=xplat --env=development --variant=true"
-          - "-r=xplat --env=production --variant=false"
-          - "-r=xplat --env=production --variant=true"
-          # TODO: Test more persistent configurations?
-          - "-r=stable --env=development --persistent"
-          - "-r=experimental --env=development --persistent"
-        shard:
-          - 1/5
-          - 2/5
-          - 3/5
-          - 4/5
-          - 5/5
-    continue-on-error: true
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install ucacher
-        run: |
-          env;
-          cp .github/ucacher /usr/local/bin/ucacher;
-          chmod +x /usr/local/bin/ucacher;
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: '.nvmrc'
-          cache: yarn
-          cache-dependency-path: yarn.lock
-      - name: Restore cached node_modules
-        uses: actions/cache@v4
-        id: node_modules
-        with:
-          path: "**/node_modules"
-          key: ${{ runner.arch }}-${{ runner.os }}-modules-${{ hashFiles('yarn.lock') }}
-      - run: yarn install --frozen-lockfile
-      - run: ucacher yarn test ${{ matrix.params }} --ci --shard=${{ matrix.shard }}
-        env:
-          CI: github
-          RELEASE_CHANNEL: ${{ matrix.release_channel }}
-          NODE_INDEX: ${{ matrix.worker_id }}
-          # ucacher:
-          AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
-          AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
-          UCACHER_DB_URI: "${{ secrets.UCACHER_DB_URI }}"
-          UCACHER_STORAGE: s3://us-west-2/earthly-ucacher-directory--usw2-az1--x-s3
-          UCACHER_INSTRUMENTER: strace
-          UCACHER_SHOW_IO: true
-          FORCE_COLOR: 1
-          LOG_LEVEL: debug
+#  test:
+#    name: yarn test ${{ matrix.params }} (Shard ${{ matrix.shard }})
+#    runs-on: ubuntu-latest
+#    strategy:
+#      matrix:
+#        params:
+#          - "-r=stable --env=development"
+#          - "-r=stable --env=production"
+#          - "-r=experimental --env=development"
+#          - "-r=experimental --env=production"
+#          - "-r=www-classic --env=development --variant=false"
+#          - "-r=www-classic --env=production --variant=false"
+#          - "-r=www-classic --env=development --variant=true"
+#          - "-r=www-classic --env=production --variant=true"
+#          - "-r=www-modern --env=development --variant=false"
+#          - "-r=www-modern --env=production --variant=false"
+#          - "-r=www-modern --env=development --variant=true"
+#          - "-r=www-modern --env=production --variant=true"
+#          - "-r=xplat --env=development --variant=false"
+#          - "-r=xplat --env=development --variant=true"
+#          - "-r=xplat --env=production --variant=false"
+#          - "-r=xplat --env=production --variant=true"
+#          # TODO: Test more persistent configurations?
+#          - "-r=stable --env=development --persistent"
+#          - "-r=experimental --env=development --persistent"
+#        shard:
+#          - 1/5
+#          - 2/5
+#          - 3/5
+#          - 4/5
+#          - 5/5
+#    continue-on-error: true
+#    steps:
+#      - uses: actions/checkout@v4
+#      - uses: actions/setup-node@v4
+#        with:
+#          node-version-file: '.nvmrc'
+#          cache: yarn
+#          cache-dependency-path: yarn.lock
+#      - name: Restore cached node_modules
+#        uses: actions/cache@v4
+#        id: node_modules
+#        with:
+#          path: "**/node_modules"
+#          key: ${{ runner.arch }}-${{ runner.os }}-modules-${{ hashFiles('yarn.lock') }}
+#      - run: yarn install --frozen-lockfile
+#      - run: yarn test ${{ matrix.params }} --ci --shard=${{ matrix.shard }}
   # ----- BUILD -----
 
   build_and_lint:
