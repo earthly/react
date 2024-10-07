@@ -179,21 +179,21 @@ jobs:
           tree /tmp/ucacher || echo "/tmp/ucacher empty"
           cp .github/ucacher /usr/local/bin/ucacher;
           chmod +x /usr/local/bin/ucacher;
-      - uses: actions/setup-node@v4
-        with:
-          node-version-file: '.nvmrc'
-          cache: yarn
-          cache-dependency-path: yarn.lock
-      - uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 11.0.22
-      - name: Restore cached node_modules
-        uses: actions/cache@v4
-        id: node_modules
-        with:
-          path: "**/node_modules"
-          key: ${{ runner.arch }}-${{ runner.os }}-modules-${{ hashFiles('yarn.lock') }}
+#      - uses: actions/setup-node@v4
+#        with:
+#          node-version-file: '.nvmrc'
+#          cache: yarn
+#          cache-dependency-path: yarn.lock
+#      - uses: actions/setup-java@v4
+#        with:
+#          distribution: temurin
+#          java-version: 11.0.22
+#      - name: Restore cached node_modules
+#        uses: actions/cache@v4
+#        id: node_modules
+#        with:
+#          path: "**/node_modules"
+#          key: ${{ runner.arch }}-${{ runner.os }}-modules-${{ hashFiles('yarn.lock') }}
       - run: yarn install --frozen-lockfile
       - run: ucacher yarn build --index=${{ matrix.worker_id }} --total=20 --r=${{ matrix.release_channel }} --ci
         env:
@@ -203,8 +203,18 @@ jobs:
       - run: tree -f build
       - run: cat /tmp/ucacher/ucacher.log
       - run: sha256sum /home/runner/work/react/react/build/oss-stable-semver/eslint-plugin-react-hooks/cjs/eslint-plugin-react-hooks.production.js
+      - name: Node modules cache
+        run: |
+          cacheDir=$(yarn cache dir);
+          tree -fs node_modules;
+          # rm -rf node_modules;
+      - name: Yarn cache
+        run: |
+          cacheDir=$(yarn cache dir);
+          tree -f cacheDir;
+          # yarn cache clean;
       - name: Lint build
-        run: NODE_DEBUG=cluster,net,http,fs,tls,module,timers yarn lint-build
+        run: yarn lint-build
       - name: Display structure of build
         run: ls -R build
       - name: Archive build
