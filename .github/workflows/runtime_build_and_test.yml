@@ -161,17 +161,14 @@ jobs:
 #      - run: yarn test ${{ matrix.params }} --ci --shard=${{ matrix.shard }}
 
   # ----- BUILD -----
-
   build_and_lint:
     name: yarn build and lint
-#    needs: satellite_assignment
-   # runs-on: [ "earthly-satellite#gha-react-${{ fromJson(needs.satellite_assignment.outputs.matrix)[matrix.worker_id] }}", "earthly-cache-folder#/tmp/ucacher" ]
     runs-on: ubuntu-latest
     strategy:
       matrix:
         # yml is dumb. update the --total arg to yarn build if you change the number of workers
-        worker_id: [0]
-        release_channel: [stable]
+        worker_id: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]
+        release_channel: [stable, experimental]
     steps:
       - uses: actions/checkout@v4
       - name: Install ucacher
@@ -195,36 +192,13 @@ jobs:
           path: "**/node_modules"
           key: ${{ runner.arch }}-${{ runner.os }}-modules-${{ hashFiles('yarn.lock') }}
       - run: yarn install --frozen-lockfile
-      - run: ucacher yarn build --index=${{ matrix.worker_id }} --total=20 --r=${{ matrix.release_channel }} --ci
+      - run: yarn build --index=${{ matrix.worker_id }} --total=20 --r=${{ matrix.release_channel }} --ci
         env:
           CI: github
           RELEASE_CHANNEL: ${{ matrix.release_channel }}
           NODE_INDEX: ${{ matrix.worker_id }}
-      - run: tree -fs build
-      - run: cat build/oss-stable-semver/react-server-dom-turbopack/cjs/react-server-dom-turbopack-server.browser.development.js
-      - run: cat /tmp/ucacher/ucacher.log
-      - run: sha256sum /home/runner/work/react/react/build/oss-stable-semver/eslint-plugin-react-hooks/cjs/eslint-plugin-react-hooks.production.js
-      - name: Node modules cache
-        run: |
-          cacheDir=$(yarn cache dir);
-          tree -fs node_modules;
-          # rm -rf node_modules;
-      - name: Yarn cache
-        run: |
-          cacheDir=$(yarn cache dir);
-          tree -f $cacheDir || echo "not found $cacheDir";
-          # yarn cache clean;
       - name: Lint build
-        run:  yarn lint-build
-      - name: Retry build
-        run: |
-          rm -rf build;
-          ucacher yarn build --index=${{ matrix.worker_id }} --total=20 --r=${{ matrix.release_channel }} --ci;
-          yarn lint-build;
-        env:
-          CI: github
-          RELEASE_CHANNEL: ${{ matrix.release_channel }}
-          NODE_INDEX: ${{ matrix.worker_id }}
+        run: yarn lint-build
       - name: Display structure of build
         run: ls -R build
       - name: Archive build
