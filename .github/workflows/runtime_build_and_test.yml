@@ -11,8 +11,8 @@ env:
   SEGMENT_DOWNLOAD_TIMEOUT_MINS: 1
   AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID }}"
   AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
-  UCACHER_DB_URI: "${{ secrets.UCACHER_DB_URI }}"
-  UCACHER_STORAGE: s3://us-west-2/earthly-ucacher-directory--usw2-az1--x-s3
+#  UCACHER_DB_URI: "${{ secrets.UCACHER_DB_URI }}"
+#  UCACHER_STORAGE: s3://us-west-2/earthly-ucacher-directory--usw2-az1--x-s3
   UCACHER_INSTRUMENTER: strace
   UCACHER_SHOW_IO: true
   FORCE_COLOR: 1
@@ -201,6 +201,7 @@ jobs:
           RELEASE_CHANNEL: ${{ matrix.release_channel }}
           NODE_INDEX: ${{ matrix.worker_id }}
       - run: tree -fs build
+      - run: cat build/oss-stable-semver/react-server-dom-turbopack/cjs/react-server-dom-turbopack-server.browser.development.js
       - run: cat /tmp/ucacher/ucacher.log
       - run: sha256sum /home/runner/work/react/react/build/oss-stable-semver/eslint-plugin-react-hooks/cjs/eslint-plugin-react-hooks.production.js
       - name: Node modules cache
