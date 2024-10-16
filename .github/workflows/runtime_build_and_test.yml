@@ -140,10 +140,8 @@ jobs:
       - uses: actions/checkout@v4
       - uses: earthly/actions-ucacher@main
         with:
-          aws_access_key: "${{ secrets.AWS_ACCESS_KEY_ID }}"
-          aws_secret_access_key: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
           db_uri: "${{ secrets.UCACHER_DB_URI }}"
-          file_storage_uri: s3://us-west-2/earthly-ucacher-directory--usw2-az1--x-s3
+          fs_uri: "${{ secrets.UCACHER_FS_URI }}"
       - uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
