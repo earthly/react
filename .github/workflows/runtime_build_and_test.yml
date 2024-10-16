@@ -138,8 +138,7 @@ jobs:
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
-      - name: Install ucacher
-        uses: ./.github/actions/ucacher
+      - uses: earthly/actions-ucacher
         with:
           aws_access_key: "${{ secrets.AWS_ACCESS_KEY_ID }}"
           aws_secret_access_key: "${{ secrets.AWS_SECRET_ACCESS_KEY }}"
