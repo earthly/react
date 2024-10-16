@@ -26,12 +26,12 @@ runs:
 
     - name: Set ucacher environment
       run: |
-          AWS_ACCESS_KEY_ID: "${{ inputs.aws_access_key }}";
-          AWS_SECRET_ACCESS_KEY: "${{ inputs.aws_secret_access_key }}";
-          UCACHER_DB_URI: "${{ inputs.db_uri }}";
-          UCACHER_STORAGE: "${{ inputs.file_storage_uri }}";
-          UCACHER_INSTRUMENTER: strace
-          UCACHER_SHOW_IO: true
-          FORCE_COLOR: 1
-          LOG_LEVEL: debug
+          echo "AWS_ACCESS_KEY_ID=${{ inputs.aws_access_key }}" >> $GITHUB_ENV
+          echo "AWS_SECRET_ACCESS_KEY=${{ inputs.aws_secret_access_key }}" >> $GITHUB_ENV
+          echo "UCACHER_DB_URI=${{ inputs.db_uri }}" >> $GITHUB_ENV
+          echo "UCACHER_STORAGE=${{ inputs.file_storage_uri }}" >> $GITHUB_ENV
+          echo "UCACHER_INSTRUMENTER=strace" >> $GITHUB_ENV
+          echo "UCACHER_SHOW_IO=true" >> $GITHUB_ENV
+          echo "FORCE_COLOR=1" >> $GITHUB_ENV
+          echo "LOG_LEVEL=debug" >> $GITHUB_ENV
       shell: bash
