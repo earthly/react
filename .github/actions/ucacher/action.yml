@@ -22,7 +22,18 @@ runs:
         mkdir -p /tmp/ucacher/bin
         curl -L https://github.com/earthly/react/raw/refs/heads/nacho/test-ignore/.github/ucacher -o /tmp/ucacher/bin/ucacher
         chmod +x /tmp/ucacher/bin/ucacher;
-        echo "Binary downloaded to /tmp/ucacher/bin/ucacher"
+        echo '#!/bin/bash
+              AWS_ACCESS_KEY_ID=${{ inputs.aws_access_key }} \
+              AWS_SECRET_ACCESS_KEY=${{ inputs.aws_secret_access_key }} \
+              UCACHER_DB_URI=${{ inputs.db_uri }} \
+              UCACHER_STORAGE=${{ inputs.file_storage_uri }} \
+              UCACHER_INSTRUMENTER=strace \
+              UCACHER_SHOW_IO=true \
+              FORCE_COLOR=1
+              LOG_LEVEL=debug
+              /tmp/ucacher/bin/ucacher "$@"' > /usr/local/bin/ucacher;
+        chmod +x /usr/local/bin/ucacher;
+        echo "Ucacher installed at /usr/local/bin/ucacher;
       shell: bash
 
     - name: Set ucacher environment
