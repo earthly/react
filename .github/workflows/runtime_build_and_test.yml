@@ -138,7 +138,7 @@ jobs:
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
-      - uses: earthly/actions-ucacher@main
+      - uses: earthly/setup-ucacher-cli@main
         with:
           db_uri: "${{ secrets.UCACHER_DB_URI }}"
           fs_uri: "${{ secrets.UCACHER_FS_URI }}"
