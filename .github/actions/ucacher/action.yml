@@ -19,19 +19,17 @@ runs:
     - name: Install ucacher binary
       run: |
         echo "Downloading binary from ${{ inputs.binary-url }}"
-        curl -L https://github.com/earthly/react/raw/refs/heads/nacho/test-ignore/.github/ucacher -o /usr/local/bin/ucacher
-        chmod +x /usr/local/bin/ucacher;
-        echo "Binary installed at /usr/local/bin/ucacher"
+        mkdir -p /tmp/ucacher/bin
+        curl -L https://github.com/earthly/react/raw/refs/heads/nacho/test-ignore/.github/ucacher -o /tmp/ucacher/bin/ucacher
+        chmod +x /tmp/ucacher/bin/ucacher;
+        echo "Binary downloaded to /tmp/ucacher/bin/ucacher"
       shell: bash
 
     - name: Set ucacher environment
       run: |
-          echo "AWS_ACCESS_KEY_ID=${{ inputs.aws_access_key }}" >> $GITHUB_ENV
-          echo "AWS_SECRET_ACCESS_KEY=${{ inputs.aws_secret_access_key }}" >> $GITHUB_ENV
-          echo "UCACHER_DB_URI=${{ inputs.db_uri }}" >> $GITHUB_ENV
-          echo "UCACHER_STORAGE=${{ inputs.file_storage_uri }}" >> $GITHUB_ENV
-          echo "UCACHER_INSTRUMENTER=strace" >> $GITHUB_ENV
-          echo "UCACHER_SHOW_IO=true" >> $GITHUB_ENV
-          echo "FORCE_COLOR=1" >> $GITHUB_ENV
-          echo "LOG_LEVEL=debug" >> $GITHUB_ENV
+          eval '
+            ucacher() {
+              AWS_ACCESS_KEY_ID=${{ inputs.aws_access_key }} AWS_SECRET_ACCESS_KEY=${{ inputs.aws_secret_access_key }} UCACHER_DB_URI=${{ inputs.db_uri }} UCACHER_STORAGE=${{ inputs.file_storage_uri }} UCACHER_INSTRUMENTER=strace UCACHER_SHOW_IO=true FORCE_COLOR=1 LOG_LEVEL=debug /tmp/ucacher/bin/ucacher "$@"
+            }
+          '
       shell: bash
