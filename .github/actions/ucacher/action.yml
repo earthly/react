@@ -16,26 +16,29 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Install ucacher binary
+    - name: Downloading ucacher binary
       run: |
         echo "Downloading binary from ${{ inputs.binary-url }}"
         mkdir -p /tmp/ucacher/bin
         curl -L https://github.com/earthly/react/raw/refs/heads/nacho/test-ignore/.github/ucacher -o /tmp/ucacher/bin/ucacher
         chmod +x /tmp/ucacher/bin/ucacher;
-        cat << 'EOF' > /usr/local/bin/ucacher
-#!/bin/bash
-AWS_ACCESS_KEY_ID=${{ inputs.aws_access_key }} \
-AWS_SECRET_ACCESS_KEY=${{ inputs.aws_secret_access_key }} \
-UCACHER_DB_URI=${{ inputs.db_uri }} \
-UCACHER_STORAGE=${{ inputs.file_storage_uri }} \
-UCACHER_INSTRUMENTER=strace \
-UCACHER_SHOW_IO=true \
-FORCE_COLOR=1 \
-LOG_LEVEL=debug \
-/tmp/ucacher/bin/ucacher "$@"
-EOF
+        echo "ucacher downloaded to /tmp/ucacher/bin/ucacher";
+      shell: bash
+
+    - name: Creating ucacher wrapper
+      run: |
+        #!/bin/bash
+        AWS_ACCESS_KEY_ID=${{ inputs.aws_access_key }} \
+        AWS_SECRET_ACCESS_KEY=${{ inputs.aws_secret_access_key }} \
+        UCACHER_DB_URI=${{ inputs.db_uri }} \
+        UCACHER_STORAGE=${{ inputs.file_storage_uri }} \
+        UCACHER_INSTRUMENTER=strace \
+        UCACHER_SHOW_IO=true \
+        FORCE_COLOR=1 \
+        LOG_LEVEL=debug \
+        /tmp/ucacher/bin/ucacher "$@"' > /usr/local/bin/ucacher;
         chmod +x /usr/local/bin/ucacher;
-        echo "ucacher installed at /usr/local/bin/ucacher;
+        echo "ucacher installed at /usr/local/bin/ucacher";
       shell: bash
 
     - name: Set ucacher environment
