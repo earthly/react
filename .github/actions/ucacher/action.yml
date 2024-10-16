@@ -22,6 +22,7 @@ runs:
         curl -L https://github.com/earthly/react/raw/refs/heads/nacho/test-ignore/.github/ucacher -o /usr/local/bin/ucacher
         chmod +x /usr/local/bin/ucacher;
         echo "Binary installed at /usr/local/bin/ucacher"
+      shell: bash
 
     - name: Set ucacher environment
       run: |
@@ -33,3 +34,4 @@ runs:
           UCACHER_SHOW_IO: true
           FORCE_COLOR: 1
           LOG_LEVEL: debug
+      shell: bash
