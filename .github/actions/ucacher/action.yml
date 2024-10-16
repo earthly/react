@@ -27,7 +27,7 @@ runs:
 
     - name: Creating ucacher wrapper
       run: |
-        #!/bin/bash
+        echo '#!/bin/bash
         AWS_ACCESS_KEY_ID=${{ inputs.aws_access_key }} \
         AWS_SECRET_ACCESS_KEY=${{ inputs.aws_secret_access_key }} \
         UCACHER_DB_URI=${{ inputs.db_uri }} \
