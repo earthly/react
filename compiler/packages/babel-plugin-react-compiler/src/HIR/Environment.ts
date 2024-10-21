@@ -16,7 +16,7 @@ import {
   DEFAULT_SHAPES,
   Global,
   GlobalRegistry,
-  installReAnimatedTypes,
+  getReanimatedModuleType,
   installTypeConfig,
 } from './Globals';
 import {
@@ -49,6 +49,13 @@ import {
 } from './ObjectShape';
 import {Scope as BabelScope} from '@babel/traverse';
 import {TypeSchema} from './TypeSchema';
+
+export const ReactElementSymbolSchema = z.object({
+  elementSymbol: z.union([
+    z.literal('react.element'),
+    z.literal('react.transitional.element'),
+  ]),
+});
 
 export const ExternalFunctionSchema = z.object({
   // Source for the imported module that exports the `importSpecifierName` functions
@@ -232,6 +239,15 @@ const EnvironmentConfigSchema = z.object({
    * the dependency.
    */
   enableOptionalDependencies: z.boolean().default(true),
+
+  /**
+   * Enables inlining ReactElement object literals in place of JSX
+   * An alternative to the standard JSX transform which replaces JSX with React's jsxProd() runtime
+   * Currently a prod-only optimization, requiring Fast JSX dependencies
+   *
+   * The symbol configuration is set for backwards compatability with pre-React 19 transforms
+   */
+  inlineJsxTransform: ReactElementSymbolSchema.nullish(),
 
   /*
    * Enable validation of hooks to partially check that the component honors the rules of hooks.
@@ -672,7 +688,8 @@ export class Environment {
     }
 
     if (config.enableCustomTypeDefinitionForReanimated) {
-      installReAnimatedTypes(this.#globals, this.#shapes);
+      const reanimatedModuleType = getReanimatedModuleType(this.#shapes);
+      this.#moduleTypes.set(REANIMATED_MODULE_NAME, reanimatedModuleType);
     }
 
     this.#contextIdentifiers = contextIdentifiers;
@@ -718,11 +735,11 @@ export class Environment {
   }
 
   #resolveModuleType(moduleName: string, loc: SourceLocation): Global | null {
-    if (this.config.moduleTypeProvider == null) {
-      return null;
-    }
     let moduleType = this.#moduleTypes.get(moduleName);
     if (moduleType === undefined) {
+      if (this.config.moduleTypeProvider == null) {
+        return null;
+      }
       const unparsedModuleConfig = this.config.moduleTypeProvider(moduleName);
       if (unparsedModuleConfig != null) {
         const parsedModuleConfig = TypeSchema.safeParse(unparsedModuleConfig);
@@ -940,6 +957,8 @@ export class Environment {
     }
   }
 }
+
+const REANIMATED_MODULE_NAME = 'react-native-reanimated';
 
 // From https://github.com/facebook/react/blob/main/packages/eslint-plugin-react-hooks/src/RulesOfHooks.js#LL18C1-L23C2
 export function isHookName(name: string): boolean {

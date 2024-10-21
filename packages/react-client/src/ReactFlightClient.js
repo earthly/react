@@ -46,6 +46,7 @@ import {
   enableRefAsProp,
   enableFlightReadableStream,
   enableOwnerStacks,
+  enableServerComponentLogs,
 } from 'shared/ReactFeatureFlags';
 
 import {
@@ -937,26 +938,35 @@ function waitForReference<T>(
       }
       value = value[path[i]];
     }
-    parentObject[key] = map(response, value);
+    const mappedValue = map(response, value);
+    parentObject[key] = mappedValue;
 
     // If this is the root object for a model reference, where `handler.value`
     // is a stale `null`, the resolved value can be used directly.
     if (key === '' && handler.value === null) {
-      handler.value = parentObject[key];
+      handler.value = mappedValue;
     }
 
-    // If the parent object is an unparsed React element tuple and its outlined
-    // props have now been resolved, we also need to update the props of the
-    // parsed element object (i.e. handler.value).
+    // If the parent object is an unparsed React element tuple, we also need to
+    // update the props and owner of the parsed element object (i.e.
+    // handler.value).
     if (
       parentObject[0] === REACT_ELEMENT_TYPE &&
-      key === '3' &&
       typeof handler.value === 'object' &&
       handler.value !== null &&
-      handler.value.$$typeof === REACT_ELEMENT_TYPE &&
-      handler.value.props === null
+      handler.value.$$typeof === REACT_ELEMENT_TYPE
     ) {
-      handler.value.props = parentObject[key];
+      const element: any = handler.value;
+      switch (key) {
+        case '3':
+          element.props = mappedValue;
+          break;
+        case '4':
+          if (__DEV__) {
+            element._owner = mappedValue;
+          }
+          break;
+      }
     }
 
     handler.deps--;
@@ -1278,6 +1288,21 @@ function parseModelString(
           createFormData,
         );
       }
+      case 'Z': {
+        // Error
+        if (__DEV__) {
+          const ref = value.slice(2);
+          return getOutlinedModel(
+            response,
+            ref,
+            parentObject,
+            key,
+            resolveErrorDev,
+          );
+        } else {
+          return resolveErrorProd(response);
+        }
+      }
       case 'i': {
         // Iterator
         const ref = value.slice(2);
@@ -1340,10 +1365,8 @@ function parseModelString(
           // happened.
           Object.defineProperty(parentObject, key, {
             get: function () {
-              // We intentionally don't throw an error object here because it looks better
-              // without the stack in the console which isn't useful anyway.
-              // eslint-disable-next-line no-throw-literal
-              throw (
+              // TODO: We should ideally throw here to indicate a difference.
+              return (
                 'This object has been omitted by React in the console log ' +
                 'to avoid sending too much data from the server. Try logging smaller ' +
                 'or more specific objects.'
@@ -1872,11 +1895,7 @@ function formatV8Stack(
 }
 
 type ErrorWithDigest = Error & {digest?: string};
-function resolveErrorProd(
-  response: Response,
-  id: number,
-  digest: string,
-): void {
+function resolveErrorProd(response: Response): Error {
   if (__DEV__) {
     // These errors should never make it into a build so we don't need to encode them in codes.json
     // eslint-disable-next-line react-internal/prod-error-codes
@@ -1890,25 +1909,17 @@ function resolveErrorProd(
       ' may provide additional details about the nature of the error.',
   );
   error.stack = 'Error: ' + error.message;
-  (error: any).digest = digest;
-  const errorWithDigest: ErrorWithDigest = (error: any);
-  const chunks = response._chunks;
-  const chunk = chunks.get(id);
-  if (!chunk) {
-    chunks.set(id, createErrorChunk(response, errorWithDigest));
-  } else {
-    triggerErrorOnChunk(chunk, errorWithDigest);
-  }
+  return error;
 }
 
 function resolveErrorDev(
   response: Response,
-  id: number,
-  digest: string,
-  message: string,
-  stack: ReactStackTrace,
-  env: string,
-): void {
+  errorInfo: {message: string, stack: ReactStackTrace, env: string, ...},
+): Error {
+  const message: string = errorInfo.message;
+  const stack: ReactStackTrace = errorInfo.stack;
+  const env: string = errorInfo.env;
+
   if (!__DEV__) {
     // These errors should never make it into a build so we don't need to encode them in codes.json
     // eslint-disable-next-line react-internal/prod-error-codes
@@ -1918,7 +1929,7 @@ function resolveErrorDev(
   }
 
   let error;
-  if (!enableOwnerStacks) {
+  if (!enableOwnerStacks && !enableServerComponentLogs) {
     // Executing Error within a native stack isn't really limited to owner stacks
     // but we gate it behind the same flag for now while iterating.
     // eslint-disable-next-line react-internal/prod-error-codes
@@ -1948,16 +1959,8 @@ function resolveErrorDev(
     }
   }
 
-  (error: any).digest = digest;
   (error: any).environmentName = env;
-  const errorWithDigest: ErrorWithDigest = (error: any);
-  const chunks = response._chunks;
-  const chunk = chunks.get(id);
-  if (!chunk) {
-    chunks.set(id, createErrorChunk(response, errorWithDigest));
-  } else {
-    triggerErrorOnChunk(chunk, errorWithDigest);
-  }
+  return error;
 }
 
 function resolvePostponeProd(response: Response, id: number): void {
@@ -2461,9 +2464,7 @@ function resolveConsoleEntry(
   const env = payload[3];
   const args = payload.slice(4);
 
-  if (!enableOwnerStacks) {
-    // Printing with stack isn't really limited to owner stacks but
-    // we gate it behind the same flag for now while iterating.
+  if (!enableOwnerStacks && !enableServerComponentLogs) {
     bindToConsole(methodName, args, env)();
     return;
   }
@@ -2613,17 +2614,20 @@ function processFullStringRow(
     }
     case 69 /* "E" */: {
       const errorInfo = JSON.parse(row);
+      let error;
       if (__DEV__) {
-        resolveErrorDev(
-          response,
-          id,
-          errorInfo.digest,
-          errorInfo.message,
-          errorInfo.stack,
-          errorInfo.env,
-        );
+        error = resolveErrorDev(response, errorInfo);
       } else {
-        resolveErrorProd(response, id, errorInfo.digest);
+        error = resolveErrorProd(response);
+      }
+      (error: any).digest = errorInfo.digest;
+      const errorWithDigest: ErrorWithDigest = (error: any);
+      const chunks = response._chunks;
+      const chunk = chunks.get(id);
+      if (!chunk) {
+        chunks.set(id, createErrorChunk(response, errorWithDigest));
+      } else {
+        triggerErrorOnChunk(chunk, errorWithDigest);
       }
       return;
     }
@@ -2633,11 +2637,22 @@ function processFullStringRow(
     }
     case 68 /* "D" */: {
       if (__DEV__) {
-        const debugInfo: ReactComponentInfo | ReactAsyncInfo = parseModel(
-          response,
-          row,
-        );
-        resolveDebugInfo(response, id, debugInfo);
+        const chunk: ResolvedModelChunk<ReactComponentInfo | ReactAsyncInfo> =
+          createResolvedModelChunk(response, row);
+        initializeModelChunk(chunk);
+        const initializedChunk: SomeChunk<ReactComponentInfo | ReactAsyncInfo> =
+          chunk;
+        if (initializedChunk.status === INITIALIZED) {
+          resolveDebugInfo(response, id, initializedChunk.value);
+        } else {
+          // TODO: This is not going to resolve in the right order if there's more than one.
+          chunk.then(
+            v => resolveDebugInfo(response, id, v),
+            e => {
+              // Ignore debug info errors for now. Unnecessary noise.
+            },
+          );
+        }
         return;
       }
       // Fallthrough to share the error with Console entries.

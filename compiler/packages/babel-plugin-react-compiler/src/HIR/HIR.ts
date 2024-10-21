@@ -367,6 +367,7 @@ export type BasicBlock = {
   preds: Set<BlockId>;
   phis: Set<Phi>;
 };
+export type TBasicBlock<T extends Terminal> = BasicBlock & {terminal: T};
 
 /*
  * Terminal nodes generally represent statements that affect control flow, such as
@@ -760,8 +761,8 @@ function _staticInvariantInstructionValueHasLocation(
 
 export type Phi = {
   kind: 'Phi';
-  id: Identifier;
-  operands: Map<BlockId, Identifier>;
+  place: Place;
+  operands: Map<BlockId, Place>;
 };
 
 /**
@@ -874,13 +875,7 @@ export type InstructionValue =
       };
       loc: SourceLocation;
     }
-  | {
-      kind: 'StoreLocal';
-      lvalue: LValue;
-      value: Place;
-      type: t.FlowType | t.TSType | null;
-      loc: SourceLocation;
-    }
+  | StoreLocal
   | {
       kind: 'StoreContext';
       lvalue: {
@@ -1123,6 +1118,13 @@ export type Primitive = {
 
 export type JSXText = {kind: 'JSXText'; value: string; loc: SourceLocation};
 
+export type StoreLocal = {
+  kind: 'StoreLocal';
+  lvalue: LValue;
+  value: Place;
+  type: t.FlowType | t.TSType | null;
+  loc: SourceLocation;
+};
 export type PropertyLoad = {
   kind: 'PropertyLoad';
   object: Place;
@@ -1496,7 +1498,8 @@ export type ReactiveScopeDeclaration = {
   scope: ReactiveScope; // the scope in which the variable was originally declared
 };
 
-export type DependencyPath = Array<{property: string; optional: boolean}>;
+export type DependencyPathEntry = {property: string; optional: boolean};
+export type DependencyPath = Array<DependencyPathEntry>;
 export type ReactiveScopeDependency = {
   identifier: Identifier;
   path: DependencyPath;

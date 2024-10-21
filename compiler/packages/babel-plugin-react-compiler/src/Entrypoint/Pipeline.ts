@@ -41,6 +41,7 @@ import {
   constantPropagation,
   deadCodeElimination,
   pruneMaybeThrows,
+  inlineJsxTransform,
 } from '../Optimization';
 import {instructionReordering} from '../Optimization/InstructionReordering';
 import {
@@ -351,6 +352,15 @@ function* runWithEnvironment(
     });
   }
 
+  if (env.config.inlineJsxTransform) {
+    inlineJsxTransform(hir, env.config.inlineJsxTransform);
+    yield log({
+      kind: 'hir',
+      name: 'inlineJsxTransform',
+      value: hir,
+    });
+  }
+
   const reactiveFunction = buildReactiveFunction(hir);
   yield log({
     kind: 'reactive',
@@ -553,4 +563,15 @@ export function log(value: CompilerPipelineValue): CompilerPipelineValue {
     }
   }
   return value;
+}
+
+export function* runPlayground(
+  func: NodePath<
+    t.FunctionDeclaration | t.ArrowFunctionExpression | t.FunctionExpression
+  >,
+  config: EnvironmentConfig,
+  fnType: ReactFunctionType,
+): Generator<CompilerPipelineValue, CodegenFunction> {
+  const ast = yield* run(func, config, fnType, '_c', null, null, null);
+  return ast;
 }
