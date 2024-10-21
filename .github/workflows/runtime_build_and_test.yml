@@ -133,6 +133,10 @@ jobs:
     continue-on-error: true
     steps:
       - uses: actions/checkout@v4
+      - uses: earthly/setup-ucacher-cli@main
+        with:
+          db_uri: "${{ secrets.UCACHER_DB_URI }}"
+          fs_uri: "${{ secrets.UCACHER_FS_URI }}"
       - uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
@@ -145,7 +149,7 @@ jobs:
           path: "**/node_modules"
           key: runtime-node_modules-${{ runner.arch }}-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
       - run: yarn install --frozen-lockfile
-      - run: yarn test ${{ matrix.params }} --ci --shard=${{ matrix.shard }}
+      - run: ucacher yarn test ${{ matrix.params }} --ci --shard=${{ matrix.shard }}
 
   # ----- BUILD -----
   build_and_lint:
