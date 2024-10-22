@@ -144,8 +144,10 @@ jobs:
         with:
           path: "**/node_modules"
           key: runtime-node_modules-${{ runner.arch }}-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
-      - run: yarn install --frozen-lockfile
-      - run: yarn test ${{ matrix.params }} --ci --shard=${{ matrix.shard }}
+      - run: sudo mv ./bin/ucacher /usr/bin/ucacher
+      - run: sudo chmod 755 /usr/bin/ucacher
+      - run: LOG_LEVEL=debug UCACHER_INSTRUMENTER=seccomp_cgo yarn install --frozen-lockfile
+      - run: LOG_LEVEL=debug UCACHER_INSTRUMENTER=seccomp_cgo yarn test ${{ matrix.params }} --ci --shard=${{ matrix.shard }}
 
   # ----- BUILD -----
   build_and_lint:
@@ -173,8 +175,10 @@ jobs:
         with:
           path: "**/node_modules"
           key: runtime-node_modules-${{ runner.arch }}-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
-      - run: yarn install --frozen-lockfile
-      - run: yarn build --index=${{ matrix.worker_id }} --total=20 --r=${{ matrix.release_channel }} --ci
+      - run: sudo mv ./bin/ucacher /usr/bin/ucacher
+      - run: sudo chmod 755 /usr/bin/ucacher
+      - run: LOG_LEVEL=debug UCACHER_INSTRUMENTER=seccomp_cgo yarn install --frozen-lockfile
+      - run: LOG_LEVEL=debug UCACHER_INSTRUMENTER=seccomp_cgo yarn build --index=${{ matrix.worker_id }} --total=20 --r=${{ matrix.release_channel }} --ci
         env:
           CI: github
           RELEASE_CHANNEL: ${{ matrix.release_channel }}
