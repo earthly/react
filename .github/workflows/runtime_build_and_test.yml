@@ -149,7 +149,7 @@ jobs:
           path: "**/node_modules"
           key: runtime-node_modules-${{ runner.arch }}-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
       - run: yarn install --frozen-lockfile
-      - run: ucacher yarn test ${{ matrix.params }} --ci --shard=${{ matrix.shard }}
+      - run: yarn test ${{ matrix.params }} --ci --shard=${{ matrix.shard }}
 
   # ----- BUILD -----
   build_and_lint:
@@ -182,7 +182,7 @@ jobs:
           path: "**/node_modules"
           key: runtime-node_modules-${{ runner.arch }}-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
       - run: yarn install --frozen-lockfile
-      - run: ucacher yarn build --index=${{ matrix.worker_id }} --total=20 --r=${{ matrix.release_channel }} --ci
+      - run: yarn build --index=${{ matrix.worker_id }} --total=20 --r=${{ matrix.release_channel }} --ci
         env:
           CI: github
           RELEASE_CHANNEL: ${{ matrix.release_channel }}
