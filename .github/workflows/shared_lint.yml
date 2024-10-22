@@ -30,7 +30,6 @@ jobs:
         with:
           path: "**/node_modules"
           key: shared-lint-node_modules-${{ runner.arch }}-${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
-      - run: sudo whoami
       - run: sudo mv ./bin/ucacher /usr/bin/ucacher
       - run: sudo chmod 755 /usr/bin/ucacher
       - run: LOG_LEVEL=debug UCACHER_INSTRUMENTER=seccomp_cgo ucacher yarn prettier-check
