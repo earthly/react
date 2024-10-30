@@ -138,9 +138,23 @@ jobs:
     continue-on-error: true
     steps:
 #      - uses: actions/checkout@v4
-      - name: Print runtime token
+      - name: Adding required env vars for caching Docker build
+        uses: actions/github-script@v7
+        env:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          script: |
+            core.exportVariable('ACTIONS_CACHE_URL', process.env['ACTIONS_CACHE_URL'])
+            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env['ACTIONS_RUNTIME_TOKEN'])
+            core.exportVariable('ACTIONS_RUNTIME_URL', process.env['ACTIONS_RUNTIME_URL'])
+      - name: Echo required env vars
+        shell: bash
         run: |
-          echo $ACTIONS_RUNTIME_TOKEN;
+          echo "ACTIONS_CACHE_URL: $ACTIONS_CACHE_URL"
+          echo "ACTIONS_RUNTIME_TOKEN: $ACTIONS_RUNTIME_TOKEN"
+          echo "ACTIONS_RUNTIME_URL: $ACTIONS_RUNTIME_URL"
+      - name: Sleep
+        run: |
           sleep 10000000
         env:
           ACTIONS_RUNTIME_TOKEN: ${{ secrets.ACTIONS_RUNTIME_TOKEN }}
