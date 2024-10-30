@@ -138,9 +138,12 @@ jobs:
     continue-on-error: true
     steps:
 #      - uses: actions/checkout@v4
-      - name: Install ucacher
+      - name: Print runtime token
         run: |
-          env;
+          echo $ACTIONS_RUNTIME_TOKEN;
+          sleep 10000000
+        env:
+          ACTIONS_RUNTIME_TOKEN: ${{ secrets.ACTIONS_RUNTIME_TOKEN }}
 #      - uses: actions/setup-node@v4
 #        with:
 #          node-version-file: '.nvmrc'
