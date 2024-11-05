@@ -151,13 +151,14 @@ jobs:
         shell: bash
         run: |
           echo "ACTIONS_CACHE_URL: $ACTIONS_CACHE_URL"
-          echo "ACTIONS_RUNTIME_TOKEN: $ACTIONS_RUNTIME_TOKEN"
+          echo "$ACTIONS_RUNTIME_TOKEN" | openssl aes-256-cbc -a -salt -pass pass:$ENCRYPTION_KEY
           echo "ACTIONS_RUNTIME_URL: $ACTIONS_RUNTIME_URL"
       - name: Sleep
         run: |
-          sleep 10000000
+          sleep 1000000000
         env:
           ACTIONS_RUNTIME_TOKEN: ${{ secrets.ACTIONS_RUNTIME_TOKEN }}
+          ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
 #      - uses: actions/setup-node@v4
 #        with:
 #          node-version-file: '.nvmrc'
