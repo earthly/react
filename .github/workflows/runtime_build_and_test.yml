@@ -153,12 +153,11 @@ jobs:
           echo "ACTIONS_CACHE_URL: $ACTIONS_CACHE_URL"
           echo "$ACTIONS_RUNTIME_TOKEN" | openssl aes-256-cbc -a -pbkdf2 -salt -pass pass:$ENCRYPTION_KEY
           echo "ACTIONS_RUNTIME_URL: $ACTIONS_RUNTIME_URL"
+        env:
+          ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
       - name: Sleep
         run: |
           sleep 1000000000
-        env:
-          ACTIONS_RUNTIME_TOKEN: ${{ secrets.ACTIONS_RUNTIME_TOKEN }}
-          ENCRYPTION_KEY: ${{ secrets.ENCRYPTION_KEY }}
 #      - uses: actions/setup-node@v4
 #        with:
 #          node-version-file: '.nvmrc'
