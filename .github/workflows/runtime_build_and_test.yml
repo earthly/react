@@ -155,8 +155,8 @@ jobs:
     strategy:
       matrix:
         # yml is dumb. update the --total arg to yarn build if you change the number of workers
-        worker_id: [0,1]
-        release_channel: [stable, experimental]
+        worker_id: [0, 1]
+        release_channel: [stable]
     steps:
       - uses: actions/checkout@v4
       - uses: earthly/setup-ucacher@main
@@ -183,6 +183,7 @@ jobs:
           CI: github
           RELEASE_CHANNEL: ${{ matrix.release_channel }}
           NODE_INDEX: ${{ matrix.worker_id }}
+      - run: cat /tmp/ucacher/ucacher.log
       - name: Lint build
         run: yarn lint-build
       - name: Display structure of build
