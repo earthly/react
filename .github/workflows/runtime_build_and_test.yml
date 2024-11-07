@@ -160,6 +160,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: earthly/setup-ucacher@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
