@@ -155,7 +155,7 @@ jobs:
     strategy:
       matrix:
         # yml is dumb. update the --total arg to yarn build if you change the number of workers
-        worker_id: [0, 1]
+        worker_id: [3]
         release_channel: [stable]
     steps:
       - uses: actions/checkout@v4
@@ -183,7 +183,7 @@ jobs:
           CI: github
           RELEASE_CHANNEL: ${{ matrix.release_channel }}
           NODE_INDEX: ${{ matrix.worker_id }}
-      - run: tree .
+      - run: tree -f .
       - name: Lint build
         run: yarn lint-build
       - name: Display structure of build
