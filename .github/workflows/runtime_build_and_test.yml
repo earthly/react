@@ -160,6 +160,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: earthly/setup-ucacher@main
+      - run:  cat /usr/local/bin/ucacher
       - uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
@@ -235,7 +236,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: earthly/setup-ucacher@main
-      - run:  cat /usr/local/bin/ucacher
       - uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
