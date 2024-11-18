@@ -152,8 +152,8 @@ jobs:
   build_and_lint:
     name: yarn build and lint
     runs-on: ubuntu-latest
-    permissions:
-      actions: write
+#    permissions:
+#      actions: write
     strategy:
       matrix:
         # yml is dumb. update the --total arg to yarn build if you change the number of workers
@@ -161,7 +161,7 @@ jobs:
         release_channel: [stable, experimental]
     steps:
       - uses: actions/checkout@v4
-      - uses: earthly/setup-ucacher@main
+      - uses: earthly/setup-ucacher@gh-token-perm
       - uses: actions/setup-node@v4
         with:
           node-version-file: '.nvmrc'
