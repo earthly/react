@@ -7,6 +7,7 @@
  * @flow
  */
 
+
 /**
  * This is a renderer of React that doesn't have a render target output.
  * It is useful to demonstrate the internals of the reconciler in isolation
