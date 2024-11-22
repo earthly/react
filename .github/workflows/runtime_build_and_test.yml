@@ -146,7 +146,7 @@ jobs:
           path: "**/node_modules"
           key: runtime-node_modules-${{ runner.arch }}-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
       - run: yarn install --frozen-lockfile
-      - run: yarn test ${{ matrix.params }} --ci --shard=${{ matrix.shard }}
+      - run: ucacher yarn test ${{ matrix.params }} --ci --shard=${{ matrix.shard }}
 #
 #  # ----- BUILD -----
 #  build_and_lint:
@@ -161,7 +161,6 @@ jobs:
 #        release_channel: [stable, experimental]
 #    steps:
 #      - uses: actions/checkout@v4
-#      - uses: earthly/setup-ucacher@main
 #      - uses: actions/setup-node@v4
 #        with:
 #          node-version-file: '.nvmrc'
@@ -178,7 +177,7 @@ jobs:
 #          path: "**/node_modules"
 #          key: runtime-node_modules-${{ runner.arch }}-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
 #      - run: yarn install --frozen-lockfile
-#      - run: ucacher yarn build --index=${{ matrix.worker_id }} --total=20 --r=${{ matrix.release_channel }} --ci
+#      - run: yarn build --index=${{ matrix.worker_id }} --total=20 --r=${{ matrix.release_channel }} --ci
 #        env:
 #          CI: github
 #          RELEASE_CHANNEL: ${{ matrix.release_channel }}
@@ -236,7 +235,6 @@ jobs:
 #    runs-on: ubuntu-latest
 #    steps:
 #      - uses: actions/checkout@v4
-#      - uses: earthly/setup-ucacher@main
 #      - uses: actions/setup-node@v4
 #        with:
 #          node-version-file: '.nvmrc'
@@ -257,7 +255,7 @@ jobs:
 #          merge-multiple: true
 #      - name: Display structure of build
 #        run: ls -R build
-#      - run: ucacher yarn test --build ${{ matrix.test_params }} --shard=${{ matrix.shard }} --ci
+#      - run: yarn test --build ${{ matrix.test_params }} --shard=${{ matrix.shard }} --ci
 #
 #  process_artifacts_combined:
 #    name: Process artifacts combined
