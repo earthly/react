@@ -1,4 +1,4 @@
 .git/**/*
 node_modules/**/*
-/home/runner/.cache/yarn
+/home/runner/.cache/**/*
 /tmp/**/*
