@@ -106,24 +106,24 @@ jobs:
       matrix:
         params:
           - "-r=stable --env=development"
-#          - "-r=stable --env=production"
-#          - "-r=experimental --env=development"
-#          - "-r=experimental --env=production"
-#          - "-r=www-classic --env=development --variant=false"
-#          - "-r=www-classic --env=production --variant=false"
-#          - "-r=www-classic --env=development --variant=true"
-#          - "-r=www-classic --env=production --variant=true"
-#          - "-r=www-modern --env=development --variant=false"
-#          - "-r=www-modern --env=production --variant=false"
-#          - "-r=www-modern --env=development --variant=true"
-#          - "-r=www-modern --env=production --variant=true"
-#          - "-r=xplat --env=development --variant=false"
-#          - "-r=xplat --env=development --variant=true"
-#          - "-r=xplat --env=production --variant=false"
-#          - "-r=xplat --env=production --variant=true"
-#          # TODO: Test more persistent configurations?
-#          - "-r=stable --env=development --persistent"
-#          - "-r=experimental --env=development --persistent"
+          - "-r=stable --env=production"
+          - "-r=experimental --env=development"
+          - "-r=experimental --env=production"
+          - "-r=www-classic --env=development --variant=false"
+          - "-r=www-classic --env=production --variant=false"
+          - "-r=www-classic --env=development --variant=true"
+          - "-r=www-classic --env=production --variant=true"
+          - "-r=www-modern --env=development --variant=false"
+          - "-r=www-modern --env=production --variant=false"
+          - "-r=www-modern --env=development --variant=true"
+          - "-r=www-modern --env=production --variant=true"
+          - "-r=xplat --env=development --variant=false"
+          - "-r=xplat --env=development --variant=true"
+          - "-r=xplat --env=production --variant=false"
+          - "-r=xplat --env=production --variant=true"
+          # TODO: Test more persistent configurations?
+          - "-r=stable --env=development --persistent"
+          - "-r=experimental --env=development --persistent"
         shard:
           - 1/5
           - 2/5
