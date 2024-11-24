@@ -99,38 +99,65 @@ jobs:
 #      - run: yarn flags
 
   # ----- TESTS -----
-  test:
-    name: yarn test ${{ matrix.params }} (Shard ${{ matrix.shard }})
+#  test:
+#    name: yarn test ${{ matrix.params }} (Shard ${{ matrix.shard }})
+#    runs-on: ubuntu-latest
+#    strategy:
+#      matrix:
+#        params:
+#          - "-r=stable --env=development"
+#          - "-r=stable --env=production"
+#          - "-r=experimental --env=development"
+#          - "-r=experimental --env=production"
+#          - "-r=www-classic --env=development --variant=false"
+#          - "-r=www-classic --env=production --variant=false"
+#          - "-r=www-classic --env=development --variant=true"
+#          - "-r=www-classic --env=production --variant=true"
+#          - "-r=www-modern --env=development --variant=false"
+#          - "-r=www-modern --env=production --variant=false"
+#          - "-r=www-modern --env=development --variant=true"
+#          - "-r=www-modern --env=production --variant=true"
+#          - "-r=xplat --env=development --variant=false"
+#          - "-r=xplat --env=development --variant=true"
+#          - "-r=xplat --env=production --variant=false"
+#          - "-r=xplat --env=production --variant=true"
+#          # TODO: Test more persistent configurations?
+#          - "-r=stable --env=development --persistent"
+#          - "-r=experimental --env=development --persistent"
+#        shard:
+#          - 1/5
+#          - 2/5
+#          - 3/5
+#          - 4/5
+#          - 5/5
+#    continue-on-error: true
+#    steps:
+#      - uses: actions/checkout@v4
+#      - uses: actions/setup-node@v4
+#        with:
+#          node-version-file: '.nvmrc'
+#          cache: yarn
+#          cache-dependency-path: yarn.lock
+#      - name: Restore cached node_modules
+#        uses: actions/cache@v4
+#        id: node_modules
+#        with:
+#          path: "**/node_modules"
+#          key: runtime-node_modules-${{ runner.arch }}-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+#      - run: yarn install --frozen-lockfile
+#      - run: ucacher yarn test ${{ matrix.params }} --ci --shard=${{ matrix.shard }}
+#
+  # ----- BUILD -----
+  build_and_lint:
+    name: yarn build and lint
     runs-on: ubuntu-latest
+#    permissions:
+#      actions: write
     strategy:
       matrix:
-        params:
-          - "-r=stable --env=development"
-          - "-r=stable --env=production"
-          - "-r=experimental --env=development"
-          - "-r=experimental --env=production"
-          - "-r=www-classic --env=development --variant=false"
-          - "-r=www-classic --env=production --variant=false"
-          - "-r=www-classic --env=development --variant=true"
-          - "-r=www-classic --env=production --variant=true"
-          - "-r=www-modern --env=development --variant=false"
-          - "-r=www-modern --env=production --variant=false"
-          - "-r=www-modern --env=development --variant=true"
-          - "-r=www-modern --env=production --variant=true"
-          - "-r=xplat --env=development --variant=false"
-          - "-r=xplat --env=development --variant=true"
-          - "-r=xplat --env=production --variant=false"
-          - "-r=xplat --env=production --variant=true"
-          # TODO: Test more persistent configurations?
-          - "-r=stable --env=development --persistent"
-          - "-r=experimental --env=development --persistent"
-        shard:
-          - 1/5
-          - 2/5
-          - 3/5
-          - 4/5
-          - 5/5
-    continue-on-error: true
+        # yml is dumb. update the --total arg to yarn build if you change the number of workers
+        worker_id: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]
+        release_channel: [stable, experimental]
     steps:
       - uses: actions/checkout@v4
       - uses: earthly/setup-ucacher@main
@@ -139,6 +166,10 @@ jobs:
           node-version-file: '.nvmrc'
           cache: yarn
           cache-dependency-path: yarn.lock
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 11.0.22
       - name: Restore cached node_modules
         uses: actions/cache@v4
         id: node_modules
@@ -146,52 +177,21 @@ jobs:
           path: "**/node_modules"
           key: runtime-node_modules-${{ runner.arch }}-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
       - run: yarn install --frozen-lockfile
-      - run: ucacher yarn test ${{ matrix.params }} --ci --shard=${{ matrix.shard }}
-#
-#  # ----- BUILD -----
-#  build_and_lint:
-#    name: yarn build and lint
-#    runs-on: ubuntu-latest
-##    permissions:
-##      actions: write
-#    strategy:
-#      matrix:
-#        # yml is dumb. update the --total arg to yarn build if you change the number of workers
-#        worker_id: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19]
-#        release_channel: [stable, experimental]
-#    steps:
-#      - uses: actions/checkout@v4
-#      - uses: actions/setup-node@v4
-#        with:
-#          node-version-file: '.nvmrc'
-#          cache: yarn
-#          cache-dependency-path: yarn.lock
-#      - uses: actions/setup-java@v4
-#        with:
-#          distribution: temurin
-#          java-version: 11.0.22
-#      - name: Restore cached node_modules
-#        uses: actions/cache@v4
-#        id: node_modules
-#        with:
-#          path: "**/node_modules"
-#          key: runtime-node_modules-${{ runner.arch }}-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
-#      - run: yarn install --frozen-lockfile
-#      - run: yarn build --index=${{ matrix.worker_id }} --total=20 --r=${{ matrix.release_channel }} --ci
-#        env:
-#          CI: github
-#          RELEASE_CHANNEL: ${{ matrix.release_channel }}
-#          NODE_INDEX: ${{ matrix.worker_id }}
-#      - name: Lint build
-#        run: yarn lint-build
-#      - name: Display structure of build
-#        run: ls -R build
-#      - name: Archive build
-#        uses: actions/upload-artifact@v4
-#        with:
-#          name: _build_${{ matrix.worker_id }}_${{ matrix.release_channel }}
-#          path: build
-#
+      - run: ucacher yarn build --index=${{ matrix.worker_id }} --total=20 --r=${{ matrix.release_channel }} --ci
+        env:
+          CI: github
+          RELEASE_CHANNEL: ${{ matrix.release_channel }}
+          NODE_INDEX: ${{ matrix.worker_id }}
+      - name: Lint build
+        run: yarn lint-build
+      - name: Display structure of build
+        run: ls -R build
+      - name: Archive build
+        uses: actions/upload-artifact@v4
+        with:
+          name: _build_${{ matrix.worker_id }}_${{ matrix.release_channel }}
+          path: build
+
 #  test_build:
 #    name: yarn test-build
 #    needs: build_and_lint
