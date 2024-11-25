@@ -151,8 +151,6 @@ jobs:
   build_and_lint:
     name: yarn build and lint
     runs-on: ubuntu-latest
-#    permissions:
-#      actions: write
     strategy:
       matrix:
         # yml is dumb. update the --total arg to yarn build if you change the number of workers
